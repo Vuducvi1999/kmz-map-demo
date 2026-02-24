@@ -16,13 +16,11 @@ interface TrafficFilters {
 }
 
 export function useTrafficControl(filters: TrafficFilters) {
-  const { setSelectedObject } = useTrafficInfo()
-
   const query = useQuery({
     queryKey: ['traffic-data', filters.interval],
     queryFn: async () => {
       await new Promise(res => setTimeout(res, 300))
-      setSelectedObject(null)
+      useTrafficInfo.getState().setSelectedObject(null)
 
       return {
         markerData,

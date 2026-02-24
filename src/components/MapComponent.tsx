@@ -36,12 +36,6 @@ export default function Map() {
     vdsStatus
   })
 
-  const {
-    closeTrafficControl,
-    openTrafficInfo,
-  } = useCollapseTraffic()
-
-  const { setSelectedObject } = useTrafficInfo()
 
   const mapComponentRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<L.Map | null>(null)
@@ -50,23 +44,19 @@ export default function Map() {
     markerData && markerData.map((data) => {
       const marker = createMarker(L, { data })
       marker.on('click', () => {
-        closeTrafficControl()
-        openTrafficInfo()
-        setSelectedObject({ type: 'marker', data })
+        useCollapseTraffic.getState().closeTrafficControl()
+        useCollapseTraffic.getState().openTrafficInfo()
+        useTrafficInfo.getState().setSelectedObject({ type: 'marker', data })
       })
       return marker
-    }), [L, markerData, setSelectedObject, closeTrafficControl, openTrafficInfo])
+    }), [L, markerData])
 
   const polylines = useMemo(() =>
-    polylineData && polylineData.map((data) => {
-      const polyline = createPolyline(window.L, data)
-      polyline.on('click', () => {
-        closeTrafficControl()
-        openTrafficInfo()
-        setSelectedObject({ type: 'polyline', data })
-      })
-      return polyline
-    }), [polylineData, setSelectedObject, closeTrafficControl, openTrafficInfo])
+    polylineData && polylineData.map((data) => createPolyline(window.L, data, () => {
+      useCollapseTraffic.getState().closeTrafficControl()
+      useCollapseTraffic.getState().openTrafficInfo()
+      useTrafficInfo.getState().setSelectedObject({ type: 'polyline', data })
+    })), [polylineData])
 
   const heatLayer = useMemo(() =>
     heatData && createHeatLayer(window.L, heatData), [heatData])

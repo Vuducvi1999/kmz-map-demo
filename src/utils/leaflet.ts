@@ -91,7 +91,8 @@ export const createHeatLayer = (
 // khi click thì viền ngoài đoạn đường sẽ được in đậm 
 export const createPolyline = (
   L: LeafletType,
-  { path, status }: PolylineData
+  { path, status }: PolylineData,
+  onClick: () => void
 ) => {
   return L.hotline(
     path.map((location) => [...location, status]), {
@@ -100,19 +101,22 @@ export const createPolyline = (
     lineJoin: 'miter'
   }).on('click',
     function (this: Hotline, e: L.LeafletMouseEvent) {
-      // click polyline chứ không click map 
+      // click polyline chứ không click map
       L.DomEvent.stopPropagation(e)
 
-      // nếu reset các polyline đang active nếu có 
+      // Reset các polyline khác
       this._map.eachLayer((layer: L.Layer) => {
         if (!(layer instanceof L.Hotline)) return
         if (layer.options.outlineWidth === 3)
           layer.setStyle({ outlineWidth: 1 })
       })
 
+      // Highlight polyline được click
       this.setStyle({
         outlineWidth: (this.options.outlineWidth || 1) + 2
       })
+
+      onClick()
     })
 }
 

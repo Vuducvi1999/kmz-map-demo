@@ -8,9 +8,7 @@ export const TrafficInfo = () => {
     openTrafficInfo: open
   } = useCollapseTraffic()
 
-  const {
-    selectedObject
-  } = useTrafficInfo()
+  const selectedObject = useTrafficInfo((state) => state.selectedObject)
 
   // console.log({ selectedObject })
 
