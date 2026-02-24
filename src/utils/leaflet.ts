@@ -1,7 +1,8 @@
 
 import type { FeatureCollection } from 'geojson'
-import { Hotline } from 'leaflet'
+import { HeatLayer, Hotline } from 'leaflet'
 import gsap from 'gsap';
+import { convertPolylineStatus } from './helper';
 
 export type DeviceStatus = 'active' | 'inactive' | 'error'
 export type PolylineStatus = 1 | 2 | 3  // thông thoáng, ùn tắc, nghiêm trọng
@@ -81,15 +82,16 @@ export const createHeatLayer = (
     pane: 'heatPane'
   })
 
-  // const heatLayerCanvas = (heatLayer as any)._canvas as HTMLCanvasElement;
-  // heatLayerCanvas.style.pointerEvents = 'none';
+  layer.on('add', function (this: HeatLayer) {
+    return scaleHeatLayer(this._map, this)
+  })
 
   return layer
 }
 
 // chỉ có 3 thể loại mật độ: thông thoáng, ùn tắc, nghiêm trọng 
 // khi click thì viền ngoài đoạn đường sẽ được in đậm 
-export const createPolyline = (
+export const createPolyline_ = (
   L: LeafletType,
   { path, status }: PolylineData,
   onClick: () => void
@@ -120,6 +122,46 @@ export const createPolyline = (
     })
 }
 
+export const createPolyline = (
+  L: LeafletType,
+  data: PolylineData,
+  onClick: () => void
+) => {
+  const polyline = L.polyline(
+    data.path, {
+    weight: 5,
+    color: convertPolylineStatus(data.status),
+    lineCap: 'butt',
+    lineJoin: 'miter',
+    opacity: 1,
+    dashOffset: '1',
+    className: 'polyline'
+  })
+
+  polyline.on('add', function (this: L.Polyline) {
+    return scalePolylineLayer(this._map, this)
+  })
+
+  polyline.on('click', function (this: L.Polyline, e: L.LeafletMouseEvent) {
+    // click polyline chứ không click map
+    L.DomEvent.stopPropagation(e)
+
+    // Reset các polyline khác
+    this._map.eachLayer((layer: L.Layer) => {
+      if (layer instanceof L.Polyline && layer.options.className === 'polyline-border')
+        layer.setStyle({ className: '' })
+    })
+
+    this.setStyle({
+      className: 'polyline-border'
+    })
+
+    onClick()
+  })
+
+  return polyline
+}
+
 export const createGeojsonLayer = (L: LeafletType, geojson: unknown) =>
   L.geoJSON(geojson as FeatureCollection, {
     style: () => ({
@@ -145,23 +187,39 @@ export const initMap = (L: LeafletType, component: HTMLDivElement) => {
   })
 
   map.on('zoom', () => {
-    const currentZoom = map.getZoom()
-    const scale = Math.pow(2, currentZoom - BASE_MAP_ZOOM)
-    const zoomRadius = BASE_HEAT_RADIUS * scale
-    const zoomBlur = BASE_HEAT_BLUR * scale
-    if (zoomRadius > 119) return
-
     map.eachLayer((layer: L.Layer) => {
-      if (!(layer instanceof window.L.HeatLayer)) return
-      layer.setOptions({
-        radius: zoomRadius,
-        blur: zoomBlur,
-      })
+      if (layer instanceof window.L.HeatLayer)
+        return scaleHeatLayer(map, layer)
+      if (layer instanceof L.Polyline)
+        return scalePolylineLayer(map, layer)
     })
   })
 
-
   return map
+}
+
+const scaleHeatLayer = (map: L.Map, layer: HeatLayer) => {
+  const currentZoom = map.getZoom()
+  const scale = Math.pow(1.8, currentZoom - BASE_MAP_ZOOM)
+  const zoomRadius = BASE_HEAT_RADIUS * scale
+  const zoomBlur = BASE_HEAT_BLUR * scale
+
+  if (zoomRadius < 119)
+    return layer.setOptions({
+      radius: zoomRadius,
+      blur: zoomBlur,
+    })
+
+}
+
+const scalePolylineLayer = (map: L.Map, layer: L.Polyline) => {
+  const currentZoom = map.getZoom()
+  const scale = Math.pow(1.3, currentZoom - BASE_MAP_ZOOM)
+
+  if (layer.options.className === 'polyline')
+    return layer.setStyle({
+      weight: 5 * scale
+    })
 }
 
 export const initTileLayer = (L: LeafletType) => L.tileLayer(

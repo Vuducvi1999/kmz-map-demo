@@ -4,7 +4,7 @@
 
 import { useEffect, useMemo, useRef, useState, } from "react"
 import geojsonData from '@/data/test.json'
-import 'leaflet/dist/leaflet.css'
+import '@/app/globals.css'
 import { bindInitMarker, createGeojsonLayer, createHeatLayer, createMarker, createPolyline } from '@/utils/leaflet';
 import { initMap } from '@/utils/leaflet';
 import { useLeaflet } from "./LeafletProvider";
@@ -108,6 +108,6 @@ export default function Map() {
   }, [map, markers, heatLayer, polylines,])
 
   return (
-    <div ref={mapComponentRef} className="w-full h-full" />
+    <div ref={mapComponentRef} className="w-full h-full " />
   );
 }

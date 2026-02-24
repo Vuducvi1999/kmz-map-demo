@@ -1,6 +1,7 @@
 import { DOMParser } from '@xmldom/xmldom'
 import { kml } from '@tmcw/togeojson'
 import JSZip from 'jszip';
+import { PolylineStatus } from './leaflet';
 
 interface LatLng {
   lat: number;
@@ -44,4 +45,13 @@ export const interpolateLatLng = ({
   }
 
   return result;
+}
+
+export const convertPolylineStatus = (status: PolylineStatus) => {
+  if (status === 1)
+    return 'green'
+  if (status === 2)
+    return 'orange'
+  if (status === 3)
+    return 'red'
 }

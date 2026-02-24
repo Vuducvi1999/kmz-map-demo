@@ -25,3 +25,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.polyline-border {
+  stroke: red !important; /* Màu đường viền */
+  stroke-width: 6px !important; /* Độ dày đường viền */
+  stroke-opacity: 1; /* Độ mờ của đường viền */
+  fill: none; /* Không có màu nền cho polyline */
+}
