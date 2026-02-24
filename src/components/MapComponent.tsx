@@ -5,10 +5,12 @@
 import { useEffect, useMemo, useRef, useState, } from "react"
 import geojsonData from '@/data/test.json'
 import 'leaflet/dist/leaflet.css'
-import { bindInitMarker, createGeojsonLayer, createHeatLayer, createMarker, createPolyline } from '@/app/utils/leaflet';
-import { initMap } from '@/app/utils/leaflet';
+import { bindInitMarker, createGeojsonLayer, createHeatLayer, createMarker, createPolyline } from '@/utils/leaflet';
+import { initMap } from '@/utils/leaflet';
 import { useLeaflet } from "./LeafletProvider";
-import { useTrafficData } from "@/hooks/useTrafficData";
+import { useTrafficControl } from "@/hooks/useTrafficControl";
+import { useCollapseTraffic } from "@/hooks/useCollapseTraffic";
+import { useTrafficInfo } from "@/hooks/useTrafficInfo";
 
 
 export default function Map() {
@@ -26,35 +28,64 @@ export default function Map() {
     markerData,
     polylineData,
     heatData,
-  } = useTrafficData({
+  } = useTrafficControl({
     cctvStatus,
     heatRange,
     interval,
     polylineStatus,
     vdsStatus
   })
+
+  const {
+    closeTrafficControl,
+    openTrafficInfo,
+  } = useCollapseTraffic()
+
+  const { setSelectedObject } = useTrafficInfo()
+
   const mapComponentRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<L.Map | null>(null)
 
   const markers = useMemo(() =>
-    markerData && markerData.map((data) => createMarker(L, { data })), [L, markerData])
+    markerData && markerData.map((data) => {
+      const marker = createMarker(L, { data })
+      marker.on('click', () => {
+        closeTrafficControl()
+        openTrafficInfo()
+        setSelectedObject({ type: 'marker', data })
+      })
+      return marker
+    }), [L, markerData, setSelectedObject, closeTrafficControl, openTrafficInfo])
 
   const polylines = useMemo(() =>
-    polylineData && polylineData.map((data) => createPolyline(window.L, data).bringToFront()), [polylineData])
+    polylineData && polylineData.map((data) => {
+      const polyline = createPolyline(window.L, data)
+      polyline.on('click', () => {
+        closeTrafficControl()
+        openTrafficInfo()
+        setSelectedObject({ type: 'polyline', data })
+      })
+      return polyline
+    }), [polylineData, setSelectedObject, closeTrafficControl, openTrafficInfo])
 
   const heatLayer = useMemo(() =>
     heatData && createHeatLayer(window.L, heatData), [heatData])
 
   const geojsonLayer = useMemo(() => createGeojsonLayer(window.L, geojsonData), [])
 
-
   useEffect(() => {
     if (!mapComponentRef.current) return
     const map = initMap(L, mapComponentRef.current)
-    map.addLayer(geojsonLayer)
+
     setMap(map)
     return () => { map.remove() }
-  }, [mapComponentRef, L, geojsonLayer])
+  }, [mapComponentRef, L])
+
+  useEffect(() => {
+    if (!map) return
+    if (geojsonActive) map.addLayer(geojsonLayer)
+    if (!geojsonActive) map.removeLayer(geojsonLayer)
+  }, [map, geojsonActive, geojsonLayer])
 
   useEffect(() => {
     if (!map) return
@@ -65,7 +96,7 @@ export default function Map() {
       }
 
       markers.forEach(marker => marker.addTo(map))
-      bindInitMarker(markers)
+      // bindInitMarker(markers)
       polylines.forEach(polyline => map.addLayer(polyline))
     }
 
@@ -84,11 +115,9 @@ export default function Map() {
         markers.forEach(layer => (layer.remove()))
       }
     }
-  }, [map, markers, heatLayer, polylines])
+  }, [map, markers, heatLayer, polylines,])
 
   return (
-    <>
-      <div ref={mapComponentRef} className="w-full h-full" />
-    </>
+    <div ref={mapComponentRef} className="w-full h-full" />
   );
 }

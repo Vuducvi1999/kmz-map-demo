@@ -1,4 +1,4 @@
-import { HeatData, MarkerData, PolylineData } from "@/app/utils/leaflet";
+import { HeatData, MarkerData, PolylineData } from "@/utils/leaflet";
 
 // export const cctvMarkers: ReturnType<typeof createMarker>[] = [
 //  ...markerData.cctv

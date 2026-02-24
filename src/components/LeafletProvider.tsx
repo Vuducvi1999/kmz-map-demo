@@ -1,6 +1,6 @@
 'use client'
 
-import { DeviceStatus, LeafletType, PolylineStatus } from "@/app/utils/leaflet";
+import { DeviceStatus, LeafletType, PolylineStatus } from "@/utils/leaflet";
 import Script from "next/script";
 import {
   createContext,

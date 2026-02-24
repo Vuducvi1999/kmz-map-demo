@@ -1,7 +1,8 @@
-import { HeatData, MarkerData, PolylineData } from '@/app/utils/leaflet'
+import { HeatData, MarkerData, PolylineData } from '@/utils/leaflet'
 import { heatData, markerData, polylineData } from '@/data/leaflet'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { useTrafficInfo } from './useTrafficInfo'
 
 type PolylineStatus = 1 | 2 | 3
 type DeviceStatus = 'active' | 'inactive' | 'repair' | 'error'
@@ -14,11 +15,14 @@ interface TrafficFilters {
   heatRange: [number, number]
 }
 
-export function useTrafficData(filters: TrafficFilters) {
+export function useTrafficControl(filters: TrafficFilters) {
+  const { setSelectedObject } = useTrafficInfo()
+
   const query = useQuery({
     queryKey: ['traffic-data', filters.interval],
     queryFn: async () => {
       await new Promise(res => setTimeout(res, 300))
+      setSelectedObject(null)
 
       return {
         markerData,

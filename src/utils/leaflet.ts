@@ -59,7 +59,7 @@ export const bindInitMarker = (markers: L.Marker[]) => {
       // onUpdate: () => {
       //   marker.setLatLng(marker.getLatLng());
       // },
-    }, "-=80%")
+    }, "-=90%")
   })
 }
 
@@ -92,10 +92,12 @@ export const createHeatLayer = (
 export const createPolyline = (
   L: LeafletType,
   { path, status }: PolylineData
-) =>
-  L.hotline(
+) => {
+  return L.hotline(
     path.map((location) => [...location, status]), {
-    min: 1, max: 3, pane: 'polylinePane'
+    min: 1, max: 3, pane: 'polylinePane', smoothFactor: 0,
+    lineCap: 'butt',
+    lineJoin: 'miter'
   }).on('click',
     function (this: Hotline, e: L.LeafletMouseEvent) {
       // click polyline chứ không click map 
@@ -112,6 +114,7 @@ export const createPolyline = (
         outlineWidth: (this.options.outlineWidth || 1) + 2
       })
     })
+}
 
 export const createGeojsonLayer = (L: LeafletType, geojson: unknown) =>
   L.geoJSON(geojson as FeatureCollection, {

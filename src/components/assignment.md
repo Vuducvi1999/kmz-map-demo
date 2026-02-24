@@ -1,3 +1,6 @@
+
+================================ v1
+
 ### requirement 
 - heatMap
   + biểu diễn tình trạng thông thoáng hay ùn tắc (TrafficSituation)
@@ -32,6 +35,7 @@ marker của tôi trên leaflet mặc định giữ nguyên size, zoom in hay ou
 làm sao để chỉnh sửa kích cỡ marker trong range zoom từ 10-15
 ```
 
+================================ v2
 
 
 ### kế hoạch triển khai 
@@ -49,15 +53,22 @@ làm sao để chỉnh sửa kích cỡ marker trong range zoom từ 10-15
   + đảm bảo các feature được implement 
     * sử dụng react query để lưu trạng thái của các polyline và heat 
     * cứ interval 1 phút nó sẽ refetch lại data 
+    * hiển thị traffic info khi click vào marker hoặc polyline 
 
 - hoàn thiện
-  + thêm animation cải thiện UX   
+  + thêm animation cải thiện UX 
     * nhấp nháy marker khi sự cố thiết bị 
     * nhấp nháy polyline khi tuyến đường bị ùn tắc 
     * high light viền đen đoạn đường polyline khi click 
-    * bật tắt geojson
+    * bật tắt geojson 
   + cần tìm cách sao cho tính heat dựa trên cụm lưu lượng gần nhau 
     (hoặc chế thêm chức năng tính toán lưu lượng dưa trên bán kính, yêu cầu BE phải tự detect được khu vực đang ùn tắc có bán kính bao nhiêu)
+  + cân nhắc chuyển traffic info thành animation popup cho nó interactive 
+
+- vấn đề 
+  + heat layer tự điều chỉnh khi zoom có vẻ chưa được hợp lý 
+  + marker chưa tự điều chỉnh kích cỡ khi zoom 
+  + hotline nhìn xấu, cần nối sao cho đẹp hơn 
 
 ### todo
 - cuốn bẫy hạnh phúc đang làm tới chương 3
