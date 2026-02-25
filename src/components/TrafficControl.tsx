@@ -1,5 +1,5 @@
 import { DeviceStatus, PolylineStatus } from "@/utils/leaflet";
-import { useLeaflet } from "./LeafletProvider";
+import { useLeafletStore } from "@/hooks/useLeafletStore";
 import { useCollapseTraffic } from "@/hooks/useCollapseTraffic";
 
 export function TrafficControl() {
@@ -8,14 +8,18 @@ export function TrafficControl() {
   const openControl = useCollapseTraffic(state => state.openTrafficControl)
   const closeInfo = useCollapseTraffic(state => state.closeTrafficInfo)
 
-  const {
-    interval: { setInterval, value: interval },
-    cctv: { status: cctvStatus, setStatus: setCctvStatus },
-    geojson: { active: geojsonActive, setActive: setGeojsonActive },
-    polyline: { status: polylineStatus, setStatus: setPolylineStatus },
-    heat: { range: heatRange, setHeatRange },
-    vds: { status: vdsStatus, setStatus: setVdsStatus }
-  } = useLeaflet()
+  const interval = useLeafletStore(state => state.interval)
+  const setInterval = useLeafletStore(state => state.setInterval)
+  const geojsonActive = useLeafletStore(state => state.geojsonActive)
+  const setGeojsonActive = useLeafletStore(state => state.setGeojsonActive)
+  const polylineStatus = useLeafletStore(state => state.polylineStatus)
+  const setPolylineStatus = useLeafletStore(state => state.setPolylineStatus)
+  const cctvStatus = useLeafletStore(state => state.cctvStatus)
+  const setCctvStatus = useLeafletStore(state => state.setCctvStatus)
+  const vdsStatus = useLeafletStore(state => state.vdsStatus)
+  const setVdsStatus = useLeafletStore(state => state.setVdsStatus)
+  const heatRange = useLeafletStore(state => state.heatRange)
+  const setHeatRange = useLeafletStore(state => state.setHeatRange)
 
   const open = () => { closeInfo(); openControl(); }
 
@@ -42,7 +46,7 @@ export function TrafficControl() {
         <div
           className={`
           px-4 space-y-4
-          transition-all duration-300 ease-linear 
+          transition-all duration-300 ease-linear
           ${collapsed ? "visible max-h-full pb-4" : "invisible max-h-0 "}
         `}
         >
@@ -148,7 +152,7 @@ export function TrafficControl() {
                   value={heatRange[0]}
                   onChange={(e) => {
                     const value = Number(e.target.value)
-                    if (value <= heatRange[1]) setHeatRange(([, max]) => ([value, max]))
+                    if (value <= heatRange[1]) setHeatRange([value, heatRange[1]])
                   }}
                   className="
                   px-3 py-1.5
@@ -172,7 +176,7 @@ export function TrafficControl() {
                   value={heatRange[1]}
                   onChange={(e) => {
                     const value = Number(e.target.value)
-                    if (value >= heatRange[0]) setHeatRange(([min]) => ([min, value]))
+                    if (value >= heatRange[0]) setHeatRange([heatRange[0], value])
                   }}
                   className="
                   px-3 py-1.5

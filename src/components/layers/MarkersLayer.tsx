@@ -1,20 +1,23 @@
+/* eslint-disable react-hooks/immutability */
 import { useEffect, useMemo } from "react"
 import { createMarker, MarkerData } from "@/utils/leaflet"
 import { useCollapseTraffic } from "@/hooks/useCollapseTraffic"
 import { useTrafficInfo } from "@/hooks/useTrafficInfo"
+import { useLeafletStore } from "@/hooks/useLeafletStore"
 
 interface MarkersLayerProps {
   map: L.Map | null
   markerData: MarkerData[] | null | undefined
-  L: typeof import("leaflet")
 }
 
-export function MarkersLayer({ map, markerData, L }: MarkersLayerProps) {
+export function MarkersLayer({ map, markerData }: MarkersLayerProps) {
+  const L = useLeafletStore((state) => state.L)
+
   const markers = useMemo(() => {
-    if (!markerData) return null
+    if (!L || !markerData) return null
 
     return markerData.map((data) => {
-      const marker = createMarker(L, { data })
+      const marker = createMarker(window.L, { data })
       marker.on('click', () => {
         useCollapseTraffic.getState().closeTrafficControl()
         useCollapseTraffic.getState().openTrafficInfo()
@@ -23,8 +26,6 @@ export function MarkersLayer({ map, markerData, L }: MarkersLayerProps) {
       return marker
     })
   }, [L, markerData])
-
-  console.log('MarkersLayer rerender')
 
   useEffect(() => {
     if (!map || !markers) return

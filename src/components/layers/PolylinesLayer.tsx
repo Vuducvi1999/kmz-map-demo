@@ -1,17 +1,19 @@
+/* eslint-disable react-hooks/immutability */
 import { useEffect, useMemo } from "react"
 import { createPolyline, PolylineData } from "@/utils/leaflet"
 import { useCollapseTraffic } from "@/hooks/useCollapseTraffic"
 import { useTrafficInfo } from "@/hooks/useTrafficInfo"
+import { useLeafletStore } from "@/hooks/useLeafletStore"
 
 interface PolylinesLayerProps {
   map: L.Map | null
   polylineData: PolylineData[] | null | undefined
-  L: typeof import("leaflet")
 }
 
-export function PolylinesLayer({ map, polylineData, L }: PolylinesLayerProps) {
+export function PolylinesLayer({ map, polylineData }: PolylinesLayerProps) {
+  const L = useLeafletStore((state) => state.L)
   const polylines = useMemo(() => {
-    if (!polylineData) return null
+    if (!L || !polylineData) return null
 
     return polylineData.map((data) =>
       createPolyline(L, data, () => {

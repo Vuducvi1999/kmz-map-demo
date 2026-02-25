@@ -1,7 +1,7 @@
 
 
 ### tách ra thành component riêng (dynamic nhất có thể) 
-- components/ChoosingOverlay.tsx  
+- components/ChoosingOverlay.tsx 
   cho phép upload hoặc select danh sách các geojson layer 
   tự động center map theo geojson layer đã chọn 
 - components/ControlPanel.tsx 
@@ -35,13 +35,20 @@
     + chỉ subscribe đúng biến cần dùng 
     + không nên sử dụng useContext cho các global state thường xuyên thay đổi 
 
+- components/PolylineLayer.tsx
+- components/HeatLayer.tsx
+- components/Marker.tsx
+- components/Geojson.tsx
+  các
+
 ### built in 
 - tự động scale object theo mức zoom hiện tại 
 - mức zoom tối đa là 18 
 - mức zoom default là 15 
 
 
-
+### giải thích cơ chế
+- map component phải được render dynamic phía client, vì nó yêu cầu truy cập vào window 
 
 
 

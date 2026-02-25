@@ -10,9 +10,7 @@ const HomePage = () => {
   return <>
     <div className='relative w-screen h-screen'>
       <Map />
-      <div className="
-        absolute top-3 right-3 z-[2000] w-[280px]
-      ">
+      <div className="  absolute top-3 right-3 z-2000 max-w-70 ">
         <TrafficControl />
         <TrafficInfo />
       </div>

@@ -1,6 +1,6 @@
 
 import type { FeatureCollection } from 'geojson'
-import { HeatLayer, Hotline } from 'leaflet'
+import type { HeatLayer, Hotline } from 'leaflet'
 import gsap from 'gsap';
 import { convertPolylineStatus } from './helper';
 
