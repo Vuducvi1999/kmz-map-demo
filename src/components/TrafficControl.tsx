@@ -3,12 +3,10 @@ import { useLeaflet } from "./LeafletProvider";
 import { useCollapseTraffic } from "@/hooks/useCollapseTraffic";
 
 export function TrafficControl() {
-  const {
-    trafficControlCollapsed: collapsed,
-    closeTrafficControl: closeControl,
-    openTrafficControl: openControl,
-    closeTrafficInfo: closeInfo
-  } = useCollapseTraffic()
+  const collapsed = useCollapseTraffic(state => state.trafficControlCollapsed)
+  const closeControl = useCollapseTraffic(state => state.closeTrafficControl)
+  const openControl = useCollapseTraffic(state => state.openTrafficControl)
+  const closeInfo = useCollapseTraffic(state => state.closeTrafficInfo)
 
   const {
     interval: { setInterval, value: interval },
@@ -43,8 +41,9 @@ export function TrafficControl() {
       {
         <div
           className={`
-          transition-all duration-300 ease-in-out
-          ${collapsed ? "visible max-h-full px-4 pb-4 space-y-4" : "invisible max-h-0 "}
+          px-4 space-y-4
+          transition-all duration-300 ease-linear 
+          ${collapsed ? "visible max-h-full pb-4" : "invisible max-h-0 "}
         `}
         >
 

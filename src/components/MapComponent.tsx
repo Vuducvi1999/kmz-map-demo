@@ -36,7 +36,6 @@ export default function Map() {
     vdsStatus
   })
 
-
   const mapComponentRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<L.Map | null>(null)
 
@@ -66,29 +65,7 @@ export default function Map() {
   useEffect(() => {
     if (!mapComponentRef.current) return
     const map = initMap(L, mapComponentRef.current)
-
     setMap(map)
-    return () => { map.remove() }
-  }, [mapComponentRef, L])
-
-  useEffect(() => {
-    if (!map) return
-    if (geojsonActive) map.addLayer(geojsonLayer)
-    if (!geojsonActive) map.removeLayer(geojsonLayer)
-  }, [map, geojsonActive, geojsonLayer])
-
-  useEffect(() => {
-    if (!map) return
-    if (heatLayer && markers && polylines) {
-      map.addLayer(heatLayer)
-      if (heatLayer._canvas) {
-        heatLayer._canvas.style.pointerEvents = 'none'
-      }
-
-      markers.forEach(marker => marker.addTo(map))
-      // bindInitMarker(markers)
-      polylines.forEach(polyline => map.addLayer(polyline))
-    }
 
     // map.on('click', function (e) {
     //   const { lat, lng } = e.latlng
@@ -98,14 +75,54 @@ export default function Map() {
     //     .openOn(map)
     // })
 
+    return () => { map.remove() }
+  }, [L])
+
+  useEffect(() => {
+    if (!map) return
+    if (geojsonActive && !map.hasLayer(geojsonLayer)) {
+      map.addLayer(geojsonLayer)
+    }
+    if (!geojsonActive && map.hasLayer(geojsonLayer)) {
+      map.removeLayer(geojsonLayer)
+    }
+
+  }, [map, geojsonActive, geojsonLayer])
+
+  useEffect(() => {
+    if (map && markers) {
+      markers.forEach(marker => map.hasLayer(marker) || marker.addTo(map))
+      bindInitMarker(markers)
+    }
     return () => {
-      if (heatLayer && polylines && markers) {
-        polylines.forEach(layer => (layer.remove()))
-        heatLayer.remove()
-        markers.forEach(layer => (layer.remove()))
+      if (map && markers)
+        markers.forEach(layer => map.hasLayer(layer) && layer.remove())
+    }
+  }, [map, markers])
+
+  useEffect(() => {
+    if (map && heatLayer) {
+      map.addLayer(heatLayer)
+      if (heatLayer._canvas) {
+        heatLayer._canvas.style.pointerEvents = 'none'
       }
     }
-  }, [map, markers, heatLayer, polylines,])
+    return () => {
+      if (map && heatLayer && map.hasLayer(heatLayer))
+        heatLayer.remove()
+    }
+  }, [map, heatLayer])
+
+  useEffect(() => {
+    if (map && polylines)
+      polylines.forEach(layer => map.hasLayer(layer) || map.addLayer(layer))
+
+    return () => {
+      if (map && polylines)
+        polylines.forEach(layer => map.hasLayer(layer) && layer.remove())
+    }
+
+  }, [map, polylines])
 
   return (
     <div ref={mapComponentRef} className="w-full h-full " />
