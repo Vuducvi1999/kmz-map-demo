@@ -1,16 +1,14 @@
 /* eslint-disable react-hooks/immutability */
 import { useEffect, useMemo } from "react"
-import { createHeatLayer, HeatData } from "@/utils/leaflet"
+import { createHeatLayer } from "@/utils/leaflet"
 import Script from "next/script"
 import { useLeafletStore } from "@/hooks/useLeafletStore"
+import * as L from 'leaflet'
+import { useTrafficControl } from "@/hooks/useTrafficControl"
 
-interface HeatLayerProps {
-  map: L.Map | null
-  heatData: HeatData[] | null | undefined
-}
-
-export function HeatLayerComponent({ map, heatData }: HeatLayerProps) {
-  const L = useLeafletStore(store => store.L)
+export function HeatLayer() {
+  const map = useLeafletStore((state) => state.map)
+  const { heatData } = useTrafficControl()
 
   const heatLayer = useMemo(() => {
     if (!window.L || !heatData) return null

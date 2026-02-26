@@ -32,14 +32,14 @@
     data thay đổi do refetch của react-query 
   xử lý nhiều data và state nên có thể bị rerender nhiều, cần tuân theo các best practice
     + function thì không cần subscribe 
-    + chỉ subscribe đúng biến cần dùng 
+    + chỉ subscribe đúng state cần dùng 
     + không nên sử dụng useContext cho các global state thường xuyên thay đổi 
 
 - components/PolylineLayer.tsx
 - components/HeatLayer.tsx
-- components/Marker.tsx
-- components/Geojson.tsx
-  các
+- components/Markerlayer.tsx
+- components/GeojsonLayer.tsx
+  các component nay 
 
 ### built in 
 - tự động scale object theo mức zoom hiện tại 
@@ -49,8 +49,9 @@
 
 ### giải thích cơ chế
 - map component phải được render dynamic phía client, vì nó yêu cầu truy cập vào window 
-
-
+- hiện tại về cơ bản, map tự nó handle UI nên việc duy nhất cần làm là quản lý client state, server state giữa các component và đảm bảo các best practice cho performance 
+- còn nếu sau này có thêm chức năng gì cho map thì bổ sung sau 
+  vd: đổi góc nhìn, ... 
 
 
 

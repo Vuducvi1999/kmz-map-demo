@@ -1,17 +1,17 @@
 /* eslint-disable react-hooks/immutability */
 import { useEffect, useMemo } from "react"
-import { createPolyline, PolylineData } from "@/utils/leaflet"
+import { createPolyline } from "@/utils/leaflet"
 import { useCollapseTraffic } from "@/hooks/useCollapseTraffic"
 import { useTrafficInfo } from "@/hooks/useTrafficInfo"
 import { useLeafletStore } from "@/hooks/useLeafletStore"
+import * as L from 'leaflet'
+import { useTrafficControl } from "@/hooks/useTrafficControl"
 
-interface PolylinesLayerProps {
-  map: L.Map | null
-  polylineData: PolylineData[] | null | undefined
-}
 
-export function PolylinesLayer({ map, polylineData }: PolylinesLayerProps) {
-  const L = useLeafletStore((state) => state.L)
+export function PolylinesLayer() {
+  const map = useLeafletStore((state) => state.map)
+  const { polylineData } = useTrafficControl()
+
   const polylines = useMemo(() => {
     if (!L || !polylineData) return null
 
@@ -22,7 +22,7 @@ export function PolylinesLayer({ map, polylineData }: PolylinesLayerProps) {
         useTrafficInfo.getState().setSelectedObject({ type: 'polyline', data })
       })
     )
-  }, [L, polylineData])
+  }, [polylineData])
 
   useEffect(() => {
     if (!map || !polylines) return

@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(npm run:*)",
+      "mcp__chrome-devtools__new_page",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)"
     ]
   }
 }

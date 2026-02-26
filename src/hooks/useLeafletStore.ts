@@ -1,8 +1,8 @@
 import { create } from 'zustand'
-import { DeviceStatus, LeafletType, PolylineStatus } from '@/utils/leaflet'
+import { DeviceStatus, PolylineStatus } from '@/utils/leaflet'
 
 interface LeafletState {
-  L: LeafletType | null
+  map: L.Map | null
   interval: number
   geojsonActive: boolean
   cctvStatus: DeviceStatus | null
@@ -10,7 +10,7 @@ interface LeafletState {
   polylineStatus: PolylineStatus | null
   heatRange: [number, number]
 
-  setL: (L: LeafletType) => void
+  setMap: (map: L.Map | null) => void
   setInterval: (interval: number) => void
   setGeojsonActive: (active: boolean) => void
   setCctvStatus: (status: DeviceStatus | null) => void
@@ -20,7 +20,7 @@ interface LeafletState {
 }
 
 export const useLeafletStore = create<LeafletState>((set) => ({
-  L: null,
+  map: null,
   interval: 5,
   geojsonActive: true,
   cctvStatus: null,
@@ -28,7 +28,7 @@ export const useLeafletStore = create<LeafletState>((set) => ({
   polylineStatus: null,
   heatRange: [0, 100],
 
-  setL: (L) => set({ L }),
+  setMap: (map) => set({ map }),
   setInterval: (interval) => set({ interval }),
   setGeojsonActive: (geojsonActive) => set({ geojsonActive }),
   setCctvStatus: (cctvStatus) => set({ cctvStatus }),

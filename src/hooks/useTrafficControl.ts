@@ -1,23 +1,19 @@
-import { HeatData, MarkerData, PolylineData } from '@/utils/leaflet'
+import type { HeatData, MarkerData, PolylineData } from '@/utils/leaflet'
 import { heatData, markerData, polylineData } from '@/data/leaflet'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useTrafficInfo } from './useTrafficInfo'
+import { useLeafletStore } from './useLeafletStore'
 
-type PolylineStatus = 1 | 2 | 3
-type DeviceStatus = 'active' | 'inactive' | 'repair' | 'error'
+export function useTrafficControl() {
+  const interval = useLeafletStore((state) => state.interval)
+  const cctvStatus = useLeafletStore((state) => state.cctvStatus)
+  const vdsStatus = useLeafletStore((state) => state.vdsStatus)
+  const polylineStatus = useLeafletStore((state) => state.polylineStatus)
+  const heatRange = useLeafletStore((state) => state.heatRange)
 
-interface TrafficFilters {
-  interval: number
-  polylineStatus: PolylineStatus | null
-  cctvStatus: DeviceStatus | null
-  vdsStatus: DeviceStatus | null
-  heatRange: [number, number]
-}
-
-export function useTrafficControl(filters: TrafficFilters) {
   const query = useQuery({
-    queryKey: ['traffic-data', filters.interval],
+    queryKey: ['traffic-data', interval],
     queryFn: async () => {
       await new Promise(res => setTimeout(res, 300))
       useTrafficInfo.getState().setSelectedObject(null)
@@ -34,39 +30,43 @@ export function useTrafficControl(filters: TrafficFilters) {
         }) as HeatData)
       }
     },
-    refetchInterval: filters.interval * 1000,
+    refetchInterval: interval * 1000,
   })
 
-  const filteredData = useMemo(() => {
-    if (!query.data) return null
+  const filteredMarkerData = useMemo(() => {
+    if (!query.data?.markerData) return null
 
-    const {
-      markerData,
-      polylineData,
-      heatData,
-    } = query.data
+    return query.data?.markerData.filter((m: MarkerData) => {
+      if (m.type === 'cctv')
+        return cctvStatus ? m.status === cctvStatus : true
+      if (m.type === 'vds')
+        return vdsStatus ? m.status === vdsStatus : true
+      return true
+    })
+  }, [query.data?.markerData, cctvStatus, vdsStatus])
 
-    return {
-      markerData: markerData.filter((m: MarkerData) => {
-        if (m.type === 'cctv')
-          return filters.cctvStatus ? m.status === filters.cctvStatus : true
-        if (m.type === 'vds')
-          return filters.vdsStatus ? m.status === filters.vdsStatus : true
-      }),
+  const filteredPolylineData = useMemo(() => {
+    if (!query.data?.polylineData) return null
 
-      polylineData: polylineData.filter((p: PolylineData) =>
-        filters.polylineStatus ? p.status === filters.polylineStatus : true
-      ),
+    return query.data?.polylineData.filter((p: PolylineData) =>
+      polylineStatus ? p.status === polylineStatus : true
+    )
+  }, [query.data?.polylineData, polylineStatus])
 
-      heatData: heatData.filter((h: HeatData) =>
-        h.intensity >= filters.heatRange[0] &&
-        h.intensity <= filters.heatRange[1]
-      ),
-    }
-  }, [query.data, filters])
+  const filteredHeatData = useMemo(() => {
+    if (!query.data?.heatData) return null
+
+    return query.data?.heatData.filter((h: HeatData) =>
+      heatRange ?
+        h.intensity >= heatRange[0] && h.intensity <= heatRange[1] :
+        true
+    )
+  }, [query.data?.heatData, heatRange])
 
   return {
     ...query,
-    ...filteredData
+    markerData: filteredMarkerData,
+    polylineData: filteredPolylineData,
+    heatData: filteredHeatData,
   }
 }

@@ -2,19 +2,16 @@ import { useEffect, useMemo } from "react"
 import { createGeojsonLayer } from "@/utils/leaflet"
 import geojsonData from '@/data/test.json'
 import { useLeafletStore } from "@/hooks/useLeafletStore"
+import * as L from 'leaflet'
 
-interface GeoJsonLayerProps {
-  map: L.Map | null
-  active: boolean
-}
-
-export function GeoJsonLayer({ map, active }: GeoJsonLayerProps) {
-  const L = useLeafletStore((state) => state.L)
+export function GeoJsonLayer() {
+  const map = useLeafletStore((state) => state.map)
+  const active = useLeafletStore(state => state.geojsonActive)
 
   const geojsonLayer = useMemo(() => {
     if (!L) return null
-    return createGeojsonLayer(window.L, geojsonData)
-  }, [L])
+    return createGeojsonLayer(L, geojsonData)
+  }, [])
 
   useEffect(() => {
     if (!map || !geojsonLayer) return
